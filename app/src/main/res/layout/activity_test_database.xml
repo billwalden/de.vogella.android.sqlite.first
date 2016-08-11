@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
@@ -10,13 +10,6 @@
         android:layout_height="wrap_content" >
 
         <Button
-            android:id="@+id/add"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Add New"
-            android:onClick="onClick"/>
-
-        <Button
             android:id="@+id/delete"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -25,12 +18,24 @@
 
     </LinearLayout>
 
-    <ListView
-        android:id="@android:id/list"
+    <FrameLayout
+        android:id="@+id/am_content"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        />
+        android:layout_height="match_parent"
+        android:layout_below="@+id/group">
 
-</LinearLayout>
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fab_button"
+            android:layout_width="71dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="16dp"
+            android:layout_marginBottom="16dp"
+            android:src="@drawable/ic_plus_basic"
+            android:layout_gravity="right|bottom"
+            android:onClick="onClick"
+            android:layout_alignBottom="@+id/toDoList_recycler"
+            android:layout_alignEnd="@+id/toDoList_recycler" />
+    </FrameLayout>
+</RelativeLayout>
 
 

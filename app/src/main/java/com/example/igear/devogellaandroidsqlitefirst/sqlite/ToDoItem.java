@@ -1,9 +1,9 @@
-package com.example.igear.devogellaandroidsqlitefirst;
+package com.example.igear.devogellaandroidsqlitefirst.sqlite;
 
 /**
  * Created by IGear on 8/10/2016.
  */
-public class Comment {
+public class ToDoItem {
     private long id;
     private String comment;
 
@@ -15,11 +15,11 @@ public class Comment {
         this.id = id;
     }
 
-    public String getComment(){
+    public String getTask(){
         return comment;
     }
 
-    public void setComment(String comment){
+    public void setTask(String comment){
         this.comment = comment;
     }
 
