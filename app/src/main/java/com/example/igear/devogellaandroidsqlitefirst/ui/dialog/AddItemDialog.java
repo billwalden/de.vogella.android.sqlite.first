@@ -26,7 +26,7 @@ public class AddItemDialog extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState){
 
         taskField = new EditText(getActivity());
-
+        setCancelable(false);
         return new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.alert_dialog_title)
                 .setPositiveButton(R.string.alert_dialog_add,

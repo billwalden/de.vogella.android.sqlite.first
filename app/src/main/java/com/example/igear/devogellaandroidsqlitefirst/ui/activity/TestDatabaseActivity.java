@@ -20,7 +20,7 @@ public class TestDatabaseActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test_database);
-
+        getSupportActionBar().setTitle(R.string.app_name);
         FragmentManager fm = getSupportFragmentManager();
         fm.beginTransaction().replace(R.id.am_content, _mainFragment).commit();
     }
@@ -28,19 +28,12 @@ public class TestDatabaseActivity extends AppCompatActivity {
     //of the buttons in main.xml
     public void onClick(View view) {
         switch ((view.getId())){
-            case R.id.delete:
-                _mainFragment.deleteToDoItem();
-                break;
             case R.id.fab_button:
                 AddItemDialog newFragment = (AddItemDialog) AddItemDialog.getDialogInstance();
                 newFragment.show(getFragmentManager(), "dialog");
                 break;
         }
     }
-   /* private void showDialog() {
-        DialogFragment newFragment = (DialogFragment) ToDoListFragment.instantiate(this, "Add Task");
-        newFragment.show(getSupportFragmentManager(), "dialog");
-    }*/
 
     public void doPositiveClick(String taskDesc) {
         // Do stuff here.
