@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import com.example.igear.devogellaandroidsqlitefirst.R;
 import com.example.igear.devogellaandroidsqlitefirst.sqlite.ToDoItem;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -29,9 +30,9 @@ public class ToDoAdapter
     public ToDoAdapter(List<ToDoItem> toDoList, OnStartDragListener startDragListener){
         this.toDoList = toDoList;
         if(!toDoList.isEmpty()){
-            lastPriority = new Integer(toDoList.get(toDoList.size() - 1).getPriority());
+            lastPriority = toDoList.get(toDoList.size() - 1).getPriority();
         }
-        lastPriority = toDoList.get(toDoList.size() - 1).getPriority();
+        else {}
         mDragStartListener = startDragListener;
     }
 
@@ -76,19 +77,29 @@ public class ToDoAdapter
     public boolean onItemMove(int fromPosition, int toPosition) {
         Collections.swap(toDoList, fromPosition, toPosition);
         notifyItemMoved(fromPosition, toPosition);
-        ToDoItem draggedItem = toDoList.get(toPosition);
-        mDragStartListener.onItemMoved(draggedItem);
+        //ToDoItem draggedItem = toDoList.get(toPosition);
+        //mDragStartListener.onItemMoved(draggedItem);
         return false;
     }
 
     @Override
     public void onItemDismiss(int position) {
+        mDragStartListener.onDismissed(position);
         toDoList.remove(position);
+        lastPriority = new Integer(lastPriority.intValue()-1);
         notifyItemRemoved(position);
-        mDragStartListener.onDismissed();
     }
 
     public Integer getLastPriority(){
         return lastPriority;
     }
+
+    public void setLastPriority(int priority){
+        lastPriority = new Integer(priority);
+    }
+
+    public List<ToDoItem> getToDoList(){
+        return toDoList;
+    }
+
 }

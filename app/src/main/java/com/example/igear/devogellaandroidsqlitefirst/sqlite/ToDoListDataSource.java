@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,18 +36,9 @@ public class ToDoListDataSource {
 
     public ToDoItem createTask(String taskDescription, Integer priority){
 
-        if(priority == null){
-            System.out.println("priority was null!!!!");
-            priority = 0;
-        }
-        else{
-            System.out.println("priority was NOT null!!!!");
-            priority = new Integer(priority.intValue() + 1);
-        }
-
         ContentValues values = new ContentValues();
         values.put(MySQLiteHelper.COLUMN_TASK, taskDescription);
-        values.put(MySQLiteHelper.COLUMN_PRIORITY, priority);
+        values.put(MySQLiteHelper.COLUMN_PRIORITY, priority.intValue());
         long insertId = database.insert(MySQLiteHelper.TABLE_TASKS, null, values);
         Cursor cursor = database.query(MySQLiteHelper.TABLE_TASKS, allColumns,
                 MySQLiteHelper.COLUMN_ID + " = " + insertId, null, null, null, null);
@@ -56,7 +48,7 @@ public class ToDoListDataSource {
         return newToDoItem;
     }
 
-    public boolean updateTask(ToDoItem taskDragged){
+    /*public boolean updateTask(ToDoItem taskDragged){
         ContentValues values = new ContentValues();
         values.put(MySQLiteHelper.COLUMN_PRIORITY, taskDragged.getPriority());
         database.execSQL("UPDATE " + MySQLiteHelper.TABLE_TASKS + " SET " + MySQLiteHelper.COLUMN_PRIORITY
@@ -64,12 +56,29 @@ public class ToDoListDataSource {
         + " > " + taskDragged.getPriority());
         return database.update(MySQLiteHelper.TABLE_TASKS, values, MySQLiteHelper.COLUMN_ID + "="
         + taskDragged.getId(), null) > 0;
+    }*/
+
+    public void updateDatabaseOrder(List<ToDoItem> toDoList) {
+        ContentValues values = new ContentValues();
+        int rowsEffected = 0;
+            for (int i = 0; i < toDoList.size(); i++) {
+                ToDoItem item = toDoList.get(i);
+                item.setPriority(i);
+                values.put(MySQLiteHelper.COLUMN_PRIORITY, i);
+                rowsEffected += database.update(MySQLiteHelper.TABLE_TASKS, values, MySQLiteHelper.COLUMN_ID + " = "
+                        + item.getId(), null);
+            }
+        Log.i("Priority Order Update", rowsEffected + " Rows were effected");
     }
+
 
     public void deleteTask(ToDoItem toDoItem){
         long id = toDoItem.getId();
         System.out.println("ToDoItem delete with id: " + id);
         database.delete(MySQLiteHelper.TABLE_TASKS, MySQLiteHelper.COLUMN_ID + " = " + id, null);
+       /* database.execSQL("UPDATE " + MySQLiteHelper.TABLE_TASKS + " SET " + MySQLiteHelper.COLUMN_PRIORITY
+                + " = " + MySQLiteHelper.COLUMN_PRIORITY + " -1 WHERE " + MySQLiteHelper.COLUMN_PRIORITY
+                + " > " + toDoItem.getPriority());*/
 
     }
 
@@ -85,15 +94,6 @@ public class ToDoListDataSource {
             toDoItems.add(toDoItem);
             cursor.moveToNext();
         }
-        for (ToDoItem item:toDoItems
-             ) {
-            System.out.println(item.getPriority());
-        }
-        Collections.sort(toDoItems);
-        for (ToDoItem item:toDoItems
-                ) {
-            System.out.println(item.getPriority());
-        }
         cursor.close();
         return toDoItems;
     }
@@ -102,10 +102,11 @@ public class ToDoListDataSource {
         ToDoItem toDoItem = new ToDoItem();
         toDoItem.setId(cursor.getLong(0));
         toDoItem.setTask(cursor.getString(1));
+        toDoItem.setPriority(cursor.getInt(2));
         return toDoItem;
     }
     public void upgradeDatabase()
     {
-        dbHelper.onUpgrade(database,0,1);
+        dbHelper.onUpgrade(database,1,2);
     }
 }

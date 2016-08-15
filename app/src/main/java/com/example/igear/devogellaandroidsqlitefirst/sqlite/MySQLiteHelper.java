@@ -4,6 +4,7 @@ package com.example.igear.devogellaandroidsqlitefirst.sqlite;
  * Created by IGear on 8/10/2016.
  */
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
@@ -35,6 +36,13 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        System.out.println(db.getVersion() + " VERSION!!!!!!!!!");
+        Cursor dbCursor =db.query(TABLE_TASKS, null, null, null, null, null, null);
+        String[] columnNames = dbCursor.getColumnNames();
+        for (String name:
+                columnNames) {
+            System.out.println(name);
+        }
         Log.w(MySQLiteHelper.class.getName(),
                 "Upgrading database from version " + oldVersion + " to "
         + newVersion + ", which will destroy the old data");

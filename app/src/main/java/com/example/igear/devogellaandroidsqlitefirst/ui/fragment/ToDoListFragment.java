@@ -33,7 +33,7 @@ public class ToDoListFragment extends Fragment implements OnStartDragListener {
 
         dataSource = new ToDoListDataSource(getActivity());
         dataSource.open();
-
+        //upgradeDB();
         List<ToDoItem> toDoList = dataSource.getAllTasks();
 
         _toDoAdapter = new ToDoAdapter(toDoList, this);
@@ -49,11 +49,17 @@ public class ToDoListFragment extends Fragment implements OnStartDragListener {
         ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback(_toDoAdapter);
         mItemTouchHelper = new ItemTouchHelper(callback);
         mItemTouchHelper.attachToRecyclerView(toDoListView);
-        //updateDB();
         return _mainLayout;
     }
+
     public void addToDoItem(String taskDesc){
         //save the new toDoItem to the database
+        if(_toDoAdapter.getLastPriority() == null){
+            _toDoAdapter.setLastPriority(0);
+        }
+        else{
+            _toDoAdapter.setLastPriority(_toDoAdapter.getLastPriority().intValue() + 1);
+        }
         ToDoItem toDoItem = dataSource.createTask(taskDesc, _toDoAdapter.getLastPriority());
         _toDoAdapter.addItem(toDoItem);
         _toDoAdapter.notifyDataSetChanged();
@@ -67,6 +73,7 @@ public class ToDoListFragment extends Fragment implements OnStartDragListener {
 
     @Override
     public void onPause() {
+        updateDBOrder();
         dataSource.close();
         super.onPause();
     }
@@ -80,17 +87,21 @@ public class ToDoListFragment extends Fragment implements OnStartDragListener {
 
     @Override
     public void onItemMoved(ToDoItem itemDragged) {
-        dataSource.updateTask(itemDragged);
+       // dataSource.updateTask(itemDragged);
     }
 
     @Override
-    public void onDismissed() {
+    public void onDismissed(int position) {
         if (_toDoAdapter.getItemCount() > 0){
-            ToDoItem toDoItem = _toDoAdapter.getItem(0);
+            ToDoItem toDoItem = _toDoAdapter.getItem(position);
             dataSource.deleteTask(toDoItem);
         }
     }
-    private void updateDB(){
+
+    private void updateDBOrder(){
+        dataSource.updateDatabaseOrder(_toDoAdapter.getToDoList());
+    }
+    private void upgradeDB(){
         dataSource.upgradeDatabase();
     }
 }

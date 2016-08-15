@@ -12,5 +12,5 @@ public interface OnStartDragListener {
 
     void onItemMoved(ToDoItem itemDragged);
 
-    void onDismissed();
+    void onDismissed(int position);
 }
