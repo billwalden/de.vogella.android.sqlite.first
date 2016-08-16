@@ -19,8 +19,10 @@ public class ToDoListDataSource {
     // Database fields
     private SQLiteDatabase database;
     private MySQLiteHelper dbHelper;
-    private String[] allColumns = { MySQLiteHelper.COLUMN_ID, MySQLiteHelper.COLUMN_TASK,
+    private String[] toDoColumns = { MySQLiteHelper.COLUMN_ID, MySQLiteHelper.COLUMN_TASK,
             MySQLiteHelper.COLUMN_PRIORITY};
+    private String[] completedColumns = {MySQLiteHelper.COLUMN_ID, MySQLiteHelper.COLUMN_TASK
+    , MySQLiteHelper.COLUMN_COMPLETEDATE};
 
     public ToDoListDataSource(Context context){
         dbHelper = new MySQLiteHelper(context);
@@ -39,13 +41,35 @@ public class ToDoListDataSource {
         ContentValues values = new ContentValues();
         values.put(MySQLiteHelper.COLUMN_TASK, taskDescription);
         values.put(MySQLiteHelper.COLUMN_PRIORITY, priority.intValue());
+        values.put(MySQLiteHelper.COLUMN_ISCOMPLETE, 0);
         long insertId = database.insert(MySQLiteHelper.TABLE_TASKS, null, values);
-        Cursor cursor = database.query(MySQLiteHelper.TABLE_TASKS, allColumns,
+        Cursor cursor = database.query(MySQLiteHelper.TABLE_TASKS, toDoColumns,
                 MySQLiteHelper.COLUMN_ID + " = " + insertId, null, null, null, null);
         cursor.moveToFirst();
         ToDoItem newToDoItem = cursorToTask(cursor);
         cursor.close();
         return newToDoItem;
+    }
+
+    public CompletedItem addTaskToCompleted(ToDoItem toDoItem){
+        long date = System.currentTimeMillis();
+        Log.d("System time in millis", Long.toString(date));
+        long id = toDoItem.getId();
+
+        ContentValues values = new ContentValues();
+        values.put(MySQLiteHelper.COLUMN_ISCOMPLETE, 1);
+        values.put(MySQLiteHelper.COLUMN_COMPLETEDATE, date);
+
+        database.update(MySQLiteHelper.TABLE_TASKS, values, MySQLiteHelper.COLUMN_ID + " = " +
+        id, null);
+
+        CompletedItem newCompletedItem = new CompletedItem();
+        newCompletedItem.setId(id);
+        newCompletedItem.setTask(toDoItem.getTask());
+        newCompletedItem.setCompleteDate(date);
+
+        System.out.println("ToDoItem added to completed with id: " + id);
+        return newCompletedItem;
     }
 
     /*public boolean updateTask(ToDoItem taskDragged){
@@ -86,7 +110,7 @@ public class ToDoListDataSource {
         List<ToDoItem> toDoItems = new ArrayList<>();
 
         Cursor cursor = database.query(MySQLiteHelper.TABLE_TASKS,
-                allColumns, null, null, null, null, null);
+                toDoColumns, MySQLiteHelper.COLUMN_ISCOMPLETE + " = " + 0, null, null, null, MySQLiteHelper.COLUMN_PRIORITY);
 
         cursor.moveToFirst();
         while(!cursor.isAfterLast()) {
@@ -95,7 +119,33 @@ public class ToDoListDataSource {
             cursor.moveToNext();
         }
         cursor.close();
+
+        //Collections.sort(toDoItems);
         return toDoItems;
+    }
+
+    public List<CompletedItem> getCompletedTasks(){
+        List<CompletedItem> completedItems = new ArrayList<>();
+
+        Cursor cursor = database.query(MySQLiteHelper.TABLE_TASKS, completedColumns,
+                MySQLiteHelper.COLUMN_ISCOMPLETE + " = " + 1, null, null,null,
+                MySQLiteHelper.COLUMN_COMPLETEDATE + " DESC");
+
+        cursor.moveToFirst();
+        while(!cursor.isAfterLast()){
+            CompletedItem completedItem = cursorToCompletedTask(cursor);
+            completedItems.add(completedItem);
+            cursor.moveToNext();
+        }
+        cursor.close();
+
+        for (CompletedItem i:
+             completedItems) {
+            Log.d("Date in millis", Long.toString(i.getCompleteDate()));
+        }
+
+        //Collections.sort(completedItems);
+        return completedItems;
     }
 
     private ToDoItem cursorToTask(Cursor cursor){
@@ -105,8 +155,16 @@ public class ToDoListDataSource {
         toDoItem.setPriority(cursor.getInt(2));
         return toDoItem;
     }
+
+    private CompletedItem cursorToCompletedTask(Cursor cursor){
+        CompletedItem completedItem = new CompletedItem();
+        completedItem.setId(cursor.getLong(0));
+        completedItem.setTask(cursor.getString(1));
+        completedItem.setCompleteDate(cursor.getLong(2));
+        return completedItem;
+    }
     public void upgradeDatabase()
     {
-        dbHelper.onUpgrade(database,1,2);
+        dbHelper.onUpgrade(database,2,3);
     }
 }

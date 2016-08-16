@@ -13,6 +13,7 @@ import android.widget.RelativeLayout;
 import com.example.igear.devogellaandroidsqlitefirst.R;
 import com.example.igear.devogellaandroidsqlitefirst.sqlite.ToDoItem;
 import com.example.igear.devogellaandroidsqlitefirst.sqlite.ToDoListDataSource;
+import com.example.igear.devogellaandroidsqlitefirst.ui.activity.TestDatabaseActivity;
 
 import java.util.List;
 
@@ -24,6 +25,7 @@ public class ToDoListFragment extends Fragment implements OnStartDragListener {
     private ToDoAdapter _toDoAdapter;
     private ToDoListDataSource dataSource;
     private ItemTouchHelper mItemTouchHelper;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -96,6 +98,11 @@ public class ToDoListFragment extends Fragment implements OnStartDragListener {
             ToDoItem toDoItem = _toDoAdapter.getItem(position);
             dataSource.deleteTask(toDoItem);
         }
+    }
+
+    public void addCompletedItem(int position){
+        dataSource.addTaskToCompleted(_toDoAdapter.getItem(position));
+        ((TestDatabaseActivity) getActivity()).updateCompletedTasks();
     }
 
     private void updateDBOrder(){

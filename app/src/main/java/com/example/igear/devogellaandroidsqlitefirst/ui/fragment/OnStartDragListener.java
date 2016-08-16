@@ -13,4 +13,6 @@ public interface OnStartDragListener {
     void onItemMoved(ToDoItem itemDragged);
 
     void onDismissed(int position);
+
+    void addCompletedItem(int position);
 }

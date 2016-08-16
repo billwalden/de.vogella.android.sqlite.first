@@ -83,8 +83,13 @@ public class ToDoAdapter
     }
 
     @Override
-    public void onItemDismiss(int position) {
-        mDragStartListener.onDismissed(position);
+    public void onItemDismiss(int position, int direction) {
+        if(direction == ItemTouchHelper.RIGHT){
+            mDragStartListener.onDismissed(position);
+        }
+        else{
+            mDragStartListener.addCompletedItem(position);
+        }
         toDoList.remove(position);
         lastPriority = new Integer(lastPriority.intValue()-1);
         notifyItemRemoved(position);

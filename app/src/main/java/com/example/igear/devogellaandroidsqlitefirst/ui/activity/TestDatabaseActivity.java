@@ -22,7 +22,8 @@ import java.util.List;
 
 
 public class TestDatabaseActivity extends AppCompatActivity {
-    private ToDoListFragment _mainFragment = new ToDoListFragment();
+    private ToDoListFragment _toDoFragment = new ToDoListFragment();
+    private CompletedListFragment _completedFragment = new CompletedListFragment();
     private Toolbar toolbar;
     private TabLayout tabLayout;
     private ViewPager viewPager;
@@ -36,7 +37,7 @@ public class TestDatabaseActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(R.string.app_name);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         setupViewPager(viewPager);
@@ -50,8 +51,8 @@ public class TestDatabaseActivity extends AppCompatActivity {
 
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFragment(new ToDoListFragment(), "To Do");
-        adapter.addFragment(new CompletedListFragment(), "Completed");
+        adapter.addFragment(_toDoFragment, "To Do");
+        adapter.addFragment(_completedFragment, "Completed");
         viewPager.setAdapter(adapter);
     }
     //Will be called via the onClick attribute
@@ -68,12 +69,17 @@ public class TestDatabaseActivity extends AppCompatActivity {
     public void doPositiveClick(String taskDesc) {
         // Do stuff here.
         Log.i("FragmentAlertDialog", "Positive click!");
-        _mainFragment.addToDoItem(taskDesc);
+        _toDoFragment.addToDoItem(taskDesc);
+
     }
 
     public void doNegativeClick() {
         // Do stuff here.
         Log.i("FragmentAlertDialog", "Negative click!");
+    }
+
+    public void updateCompletedTasks(){
+        _completedFragment.updateCompletedList();
     }
     class ViewPagerAdapter extends FragmentPagerAdapter {
         private final List<Fragment> mFragmentList = new ArrayList<>();

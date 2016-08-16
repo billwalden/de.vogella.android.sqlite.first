@@ -37,17 +37,7 @@
         android:layout_marginTop="100dp"
         android:id="@+id/am_content">
     </FrameLayout>
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab_button"
-        android:layout_width="71dp"
-        android:layout_height="wrap_content"
-        android:layout_marginRight="16dp"
-        android:layout_marginBottom="16dp"
-        android:src="@drawable/ic_plus_basic"
-        android:layout_gravity="right|bottom"
-        android:onClick="onClick"
-        android:layout_alignBottom="@+id/toDoList_recycler"
-        android:layout_alignEnd="@+id/toDoList_recycler" />
+
 </android.support.design.widget.CoordinatorLayout>
 
 
