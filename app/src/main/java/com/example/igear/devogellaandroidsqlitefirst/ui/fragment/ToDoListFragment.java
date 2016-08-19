@@ -1,10 +1,13 @@
 package com.example.igear.devogellaandroidsqlitefirst.ui.fragment;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,17 +17,35 @@ import com.example.igear.devogellaandroidsqlitefirst.R;
 import com.example.igear.devogellaandroidsqlitefirst.sqlite.ToDoItem;
 import com.example.igear.devogellaandroidsqlitefirst.sqlite.ToDoListDataSource;
 import com.example.igear.devogellaandroidsqlitefirst.ui.activity.TestDatabaseActivity;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.wearable.DataApi;
+import com.google.android.gms.wearable.DataEvent;
+import com.google.android.gms.wearable.DataEventBuffer;
+import com.google.android.gms.wearable.DataMap;
+import com.google.android.gms.wearable.DataMapItem;
+import com.google.android.gms.wearable.PutDataMapRequest;
+import com.google.android.gms.wearable.PutDataRequest;
+import com.google.android.gms.wearable.Wearable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by IGear on 8/11/2016.
  */
-public class ToDoListFragment extends Fragment implements OnStartDragListener {
+public class ToDoListFragment extends Fragment implements OnStartDragListener,  DataApi.DataListener,
+        GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener {
     private RelativeLayout _mainLayout;
     private ToDoAdapter _toDoAdapter;
     private ToDoListDataSource dataSource;
     private ItemTouchHelper mItemTouchHelper;
+    private GoogleApiClient mGoogleApiClient;
+    private final String TAG = "ToDoListFragment";
+
 
 
     @Override
@@ -51,6 +72,37 @@ public class ToDoListFragment extends Fragment implements OnStartDragListener {
         ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback(_toDoAdapter);
         mItemTouchHelper = new ItemTouchHelper(callback);
         mItemTouchHelper.attachToRecyclerView(toDoListView);
+
+        mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
+                .addApi(Wearable.API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
+
+        ArrayList<String> sList = new ArrayList<>();
+        for (ToDoItem i:
+             toDoList) {
+            sList.add(i.getTask());
+        }
+        PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/toDoList");
+        putDataMapReq.getDataMap().putLong("Time", System.currentTimeMillis());
+        putDataMapReq.getDataMap().putStringArrayList("toDoList", sList);
+        PutDataRequest putDataReq = putDataMapReq.asPutDataRequest();
+        putDataReq.setUrgent();
+        PendingResult<DataApi.DataItemResult> pendingResult =
+                Wearable.DataApi.putDataItem(mGoogleApiClient, putDataReq);
+        pendingResult.setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
+            @Override
+            public void onResult(final DataApi.DataItemResult result) {
+                if(result.getStatus().isSuccess()) {
+                    Log.d(TAG, "Data item set: " + result.getDataItem().getUri());
+                }
+            }
+        });
+        Wearable.DataApi.deleteDataItems(mGoogleApiClient, putDataReq.getUri());
+
+
+
         return _mainLayout;
     }
 
@@ -70,6 +122,32 @@ public class ToDoListFragment extends Fragment implements OnStartDragListener {
     @Override
     public void onResume() {
         dataSource.open();
+        mGoogleApiClient.connect();
+        List<ToDoItem> toDoList = _toDoAdapter.getToDoList();
+
+        ArrayList<String> tasksList = new ArrayList<>();
+
+        for (ToDoItem i:
+                toDoList) {
+            tasksList.add(i.getTask());
+        }
+
+        PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/toDoList");
+        putDataMapReq.getDataMap().putLong("NewTime", System.currentTimeMillis());
+        putDataMapReq.getDataMap().putStringArrayList("toDoList", tasksList);
+        PutDataRequest putDataReq = putDataMapReq.asPutDataRequest();
+        putDataReq.setUrgent();
+        PendingResult<DataApi.DataItemResult> pendingResult =
+                Wearable.DataApi.putDataItem(mGoogleApiClient, putDataReq);
+        pendingResult.setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
+            @Override
+            public void onResult(final DataApi.DataItemResult result) {
+                if(result.getStatus().isSuccess()) {
+                    Log.d(TAG, "Data item set: " + result.getDataItem().getUri());
+                }
+            }
+        });
+        Wearable.DataApi.deleteDataItems(mGoogleApiClient, putDataReq.getUri());
         super.onResume();
     }
 
@@ -77,6 +155,9 @@ public class ToDoListFragment extends Fragment implements OnStartDragListener {
     public void onPause() {
         updateDBOrder();
         dataSource.close();
+        Wearable.DataApi.removeListener(mGoogleApiClient, this);
+        mGoogleApiClient.disconnect();
+
         super.onPause();
     }
 
@@ -107,8 +188,42 @@ public class ToDoListFragment extends Fragment implements OnStartDragListener {
 
     private void updateDBOrder(){
         dataSource.updateDatabaseOrder(_toDoAdapter.getToDoList());
+
+
+
+
     }
     private void upgradeDB(){
         dataSource.upgradeDatabase();
+    }
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        Wearable.DataApi.addListener(mGoogleApiClient, this);
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onDataChanged(DataEventBuffer dataEvents) {
+        for(DataEvent dataEvent: dataEvents){
+            if(dataEvent.getType() == DataEvent.TYPE_CHANGED){
+                DataMap dataMap = DataMapItem.fromDataItem(dataEvent.getDataItem()).getDataMap();
+                String path = dataEvent.getDataItem().getUri().getPath();
+                if(path.equals("/toDoList")){
+                    dataMap.getStringArrayList("toDoList");
+                    Log.d(TAG, "Successfully retrieved the ToDo List");
+                }
+            }
+        }
+    }
+
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
     }
 }

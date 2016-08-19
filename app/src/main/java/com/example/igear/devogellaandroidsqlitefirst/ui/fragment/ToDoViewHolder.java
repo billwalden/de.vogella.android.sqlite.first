@@ -8,10 +8,6 @@ import android.widget.TextView;
 
 import com.example.igear.devogellaandroidsqlitefirst.R;
 
-import org.w3c.dom.Text;
-
-import static com.example.igear.devogellaandroidsqlitefirst.R.color.toDoItemBackground;
-
 /**
  * Created by IGear on 8/11/2016.
  */

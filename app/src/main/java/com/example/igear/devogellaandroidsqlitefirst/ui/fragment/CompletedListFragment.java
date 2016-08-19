@@ -11,7 +11,6 @@ import android.widget.RelativeLayout;
 
 import com.example.igear.devogellaandroidsqlitefirst.R;
 import com.example.igear.devogellaandroidsqlitefirst.sqlite.CompletedItem;
-import com.example.igear.devogellaandroidsqlitefirst.sqlite.ToDoItem;
 import com.example.igear.devogellaandroidsqlitefirst.sqlite.ToDoListDataSource;
 
 import java.util.List;

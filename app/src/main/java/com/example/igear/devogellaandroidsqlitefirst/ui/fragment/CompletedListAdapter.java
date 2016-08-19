@@ -7,7 +7,6 @@ import android.view.ViewGroup;
 
 import com.example.igear.devogellaandroidsqlitefirst.R;
 import com.example.igear.devogellaandroidsqlitefirst.sqlite.CompletedItem;
-import com.example.igear.devogellaandroidsqlitefirst.sqlite.ToDoItem;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;

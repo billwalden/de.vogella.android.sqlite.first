@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent">
+
+    <group android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/monday"
+            android:checked="false"
+            android:title="MONDAY" />
+
+
+        <item
+            android:id="@+id/tuesday"
+            android:checked="false"
+            android:title="TUESDAY" />
+
+        <item
+            android:id="@+id/wednesday"
+            android:checked="false"
+            android:title="WEDNESDAY" />
+
+
+        <item
+            android:id="@+id/thursday"
+            android:checked="false"
+            android:title="THURSDAY" />
+        <item
+            android:id="@+id/friday"
+            android:checked="false"
+            android:title="FRIDAY" />
+        <item
+            android:id="@+id/saturday"
+            android:checked="false"
+            android:title="SATURDAY" />
+
+        <item
+            android:id="@+id/sunday"
+            android:checked="false"
+            android:title="SUNDAY" />
+
+    </group>
+</menu>

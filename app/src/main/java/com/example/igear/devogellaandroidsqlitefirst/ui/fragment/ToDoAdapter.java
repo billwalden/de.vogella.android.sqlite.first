@@ -1,6 +1,5 @@
 package com.example.igear.devogellaandroidsqlitefirst.ui.fragment;
 
-import android.app.Activity;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -12,7 +11,6 @@ import android.view.ViewGroup;
 import com.example.igear.devogellaandroidsqlitefirst.R;
 import com.example.igear.devogellaandroidsqlitefirst.sqlite.ToDoItem;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
